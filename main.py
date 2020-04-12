@@ -5,12 +5,18 @@ import math
 root = tk.Tk()
 root.title('calculator')
 
+ans_val = 0
+just_equal = False
 b_h = 3
 b_w = 3
 screen = tk.StringVar()
 screen.set('0')
-text = tk.Label(root, anchor=tk.W, padx=29, bg='white', width=20, height=5, textvariable=screen, font=('helvetica', 15),
+frame = tk.Frame(root)
+text = tk.Label(frame, anchor=tk.W, padx=29, bg='#0ABAB5', width=20, height=4, textvariable=screen, font=('helvetica', 15),
                 fg='black', wraplength=200)
+text.pack(side= tk.LEFT)
+
+ans_text = tk.Label(root)
 
 class CloseWindow(tk.Toplevel):
     def __init__(self, parent):
@@ -48,13 +54,160 @@ def show_close_window(c, p):
     c.deiconify()
     c.grab_set()
 
+def check(c):
+    # grab last 2 characters to see if the last input is an operator,
+    # if it is, return True
+    l = c.strip().split(" ")
+    print(l)
+    char = l[-1]
+    print(char)
+
+    # char =  c[-2:].strip()
+    if (char.startswith("-")):
+        return False
+    if ("x" in char) or ("-" in char) or ("/" in char) or ("+" in char) or ("!" in char):
+        return True
+    if char.endswith("."):
+        return True
+
+    return False
+
+def ans(c):
+    global ans_val
+    equal(c)
+    screen.set("0")
+
+def divide(c):
+    if check(c):
+        return
+    screen.set("%s / " % c)
+
+def times(c):
+    if check(c):
+        return
+    screen.set("%s x " % c)
+
+def dot(c):
+    if check(c):
+        return
+    l = c.split(" ")
+    char = l[-1]
+    print(char)
+
+    if ("." in char):
+        return
+
+    screen.set("%s." % c)
+
+def plus(c):
+    if check(c):
+        if (c.strip().split(" ")[-1] == "/") or (c.strip().split(" ")[-1] == "x") or (c.strip().split(" ")[-1] == "-"):
+            d = list(c.strip())
+            d[-1] = "x"
+            screen.set("%s " % ("".join(d)))
+        return
+    screen.set("%s + " % c)
+
+def minus(c):
+    if (c == ""):
+        screen.set("%s -" % c)
+        return
+    if check(c):
+        screen.set("%s -" % c)
+        return
+    if ("Zero!" in screen.get()):
+        return
+    screen.set("%s - " % c)
+
+
+def equal(c):
+    global ans_val
+    global just_equal
+    nums = re.findall(r'\-?\d+\.?\d*', c)
+    nums = [float(x) for x in nums]
+
+    just_equal = True
+
+    # edge case: only one number on screen
+    if (len(nums) <= 1):
+        return
+    # nums.insert(0, ans_val)
+    operators = re.findall(r'\s(\+|\-|\/|x)\s', c)
+    if ((len(nums)-1) != len(operators)):
+        del nums[0]
+
+    print(nums)
+    print(operators)
+    while True:
+        if len(nums) == 1:
+            rs = nums[0]
+            break
+        if ("/" in operators) or ("x" in operators):
+            for i,op in enumerate(operators):
+                if (op == "/"):
+                    try:
+                        temp = nums[i] / nums[i+1]
+                        nums[i] = temp
+                        del nums[i+1]
+                        del operators[i]
+                        break
+                    except ZeroDivisionError:
+                        screen.set("Division by Zero!")
+                        rs = 0
+                        return rs
+
+                if (op == "x"):
+                    temp = nums[i] * nums[i + 1]
+                    nums[i] = temp
+                    del nums[i + 1]
+                    del operators[i]
+                    break
+        elif ("+" in operators) or ("-" in operators):
+            for i,op in enumerate(operators):
+                if (op == "+"):
+                    print("the index is ", i)
+                    print(len(nums))
+                    temp = nums[i] + nums[i + 1]
+                    nums[i] = temp
+                    del nums[i + 1]
+                    del operators[i]
+                    break
+
+                if (op == "-"):
+                    temp =  nums[i] - nums[i+1]
+                    nums[i] = temp
+                    del nums[i+1]
+                    del operators[i]
+                    break
+
+    if rs.is_integer():
+        screen.set(int(rs))
+    else:
+        screen.set(rs)
+    ans_val = rs
+
+
 def handle_clicks(btn):
     global screen
+    global ans_val
+    global just_equal
+    current = screen.get()
+
+    if (just_equal == True):
+        if (btn.isdigit()):
+            current = ""
+        elif (btn == "-"):
+            current = ""
+        just_equal = False
 
     if btn.isdigit():
-        screen.set('is a digit')
+        if current == "0":
+            screen.set(btn)
+        else:
+            screen.set(current+btn)
     else:
-        screen.set('not')
+        ops = {".":dot, "ans":ans, "+":plus, "-":minus, "=":equal, "x":times, "/":divide}
+        ops[btn](current)
 
 
 def main():
@@ -100,11 +253,12 @@ def main():
     btns['b_+'].grid(row=3, column=3)
     btns['b_='].grid(row=4, column=3, columnspan=1)
 
-    text.grid(row=4, column=0, columnspan=3)
+    frame.grid(row=4, column=0, columnspan=3)
 
     root_close = CloseWindow(root)
     root.protocol('WM_DELETE_WINDOW', lambda p=root, c=root_close: show_close_window(c, p))
 
+    root.resizable(False, False)
     tk.mainloop()
 
 
