@@ -2,21 +2,10 @@ import tkinter as tk
 import re
 import math
 
-root = tk.Tk()
-root.title('calculator')
 
-ans_val = 0
-just_equal = False
-b_h = 3
-b_w = 3
-screen = tk.StringVar()
-screen.set('0')
-frame = tk.Frame(root)
-text = tk.Label(frame, anchor=tk.W, padx=29, bg='#0ABAB5', width=20, height=4, textvariable=screen, font=('helvetica', 15),
-                fg='black', wraplength=200)
-text.pack(side= tk.LEFT)
-
-ans_text = tk.Label(root)
+# the ans element: feature to be added
+# ans_text = tk.Label(frame, textvariable=ans_val, fg='black',bg='#0ABAB5')
+# ans_text.place(anchor='n', relx=0.5)
 
 class CloseWindow(tk.Toplevel):
     def __init__(self, parent):
@@ -24,11 +13,12 @@ class CloseWindow(tk.Toplevel):
         la = tk.Label(self, text="Close window?")
         la.place(anchor='n', relx=0.5, rely=0.25)
         parent.update()
-        btn1 = tk.Button(self, width=b_w, height=b_h, command=parent.quit, text='Yes', padx=30, pady=5)
-        btn2 = tk.Button(self, width=b_w, height=b_h, command=self.hide, text='No', padx=30, pady=5)
+        btn1 = tk.Button(self, width=3, height=3, command=parent.quit, text='Yes', padx=30, pady=5)
+        btn2 = tk.Button(self, width=3, height=3, command=self.hide, text='No', padx=30, pady=5)
         btn1.place(anchor='n', relx=0.5, rely=0.35, x=-la.winfo_width()/2)
         btn2.place(anchor='n', relx=0.5, rely=0.35, x=la.winfo_width()/2)
         self.protocol('WM_DELETE_WINDOW', self.hide)
+        self.title("Closing")
         self.update_idletasks()
         self.hide()
 
@@ -36,23 +26,24 @@ class CloseWindow(tk.Toplevel):
         self.withdraw()
         self.grab_release()
 
-def center(toplevel, parent):
-    # parent.update_idletasks()
-    # get root's x + y:
-    x = parent.winfo_x()
-    y = parent.winfo_y()
+    def show_window(self, p):
+        self.center(p)
+        self.update()
+        self.deiconify()
+        self.grab_set()
 
-    # find offsets:
-    off_x = (parent.winfo_width()/2) - (toplevel.winfo_width()/2)
+    def center(self, parent):
+        # parent.update_idletasks()
+        # get root's x + y:
+        x = parent.winfo_x()
+        y = parent.winfo_y()
 
-    toplevel.geometry("+%d+%d" % (x + off_x, y))
+        # find offsets:
+        off_x = (parent.winfo_width()/2) - (self.winfo_width() / 2)
+
+        self.geometry("+%d+%d" % (x + off_x, y))
 
 
-def show_close_window(c, p):
-    center(c, p)
-    c.update()
-    c.deiconify()
-    c.grab_set()
 
 def check(c):
     # grab last 2 characters to see if the last input is an operator,
@@ -60,12 +51,15 @@ def check(c):
     l = c.strip().split(" ")
     print(l)
     char = l[-1]
-    print(char)
 
     # char =  c[-2:].strip()
-    if (char.startswith("-")):
-        return False
-    if ("x" in char) or ("-" in char) or ("/" in char) or ("+" in char) or ("!" in char):
+    if ("-" in char):
+        print("x")
+        if (char.startswith("-") and (len(char) > 1)):
+            print(len(char))
+            return False
+        return True
+    if ("x" in char) or ("/" in char) or ("+" in char) or ("!" in char):
         return True
     if char.endswith("."):
         return True
@@ -101,47 +95,30 @@ def dot(c):
 
 def plus(c):
     if check(c):
-        if (c.strip().split(" ")[-1] == "/") or (c.strip().split(" ")[-1] == "x") or (c.strip().split(" ")[-1] == "-"):
-            d = list(c.strip())
-            d[-1] = "x"
-            screen.set("%s " % ("".join(d)))
         return
     screen.set("%s + " % c)
 
 def minus(c):
     if (c == ""):
-        screen.set("%s -" % c)
+        screen.set("%s-" % c)
         return
     if check(c):
+        print(c[-4:])
+        if (c[-4:].count("-") > 1):
+            return
         screen.set("%s -" % c)
         return
     if ("Zero!" in screen.get()):
         return
     screen.set("%s - " % c)
 
-
-def equal(c):
-    global ans_val
-    global just_equal
-    nums = re.findall(r'\-?\d+\.?\d*', c)
-    nums = [float(x) for x in nums]
-
-    just_equal = True
-
-    # edge case: only one number on screen
-    if (len(nums) <= 1):
-        return
-    # nums.insert(0, ans_val)
-    operators = re.findall(r'\s(\+|\-|\/|x)\s', c)
-    if ((len(nums)-1) != len(operators)):
-        del nums[0]
-
+def calculate(nums, operators):
     print(nums)
     print(operators)
     while True:
         if len(nums) == 1:
             rs = nums[0]
-            break
+            return rs
         if ("/" in operators) or ("x" in operators):
             for i,op in enumerate(operators):
                 if (op == "/"):
@@ -152,8 +129,8 @@ def equal(c):
                         del operators[i]
                         break
                     except ZeroDivisionError:
-                        screen.set("Division by Zero!")
-                        rs = 0
+                        # screen.set("Division by Zero!")
+                        rs = "Division by Zero!"
                         return rs
 
                 if (op == "x"):
@@ -180,11 +157,35 @@ def equal(c):
                     del operators[i]
                     break
 
-    if rs.is_integer():
-        screen.set(int(rs))
-    else:
+def equal(c):
+    global ans_val
+    global just_equal
+
+    nums = re.findall(r'\-?\d+\.?\d*', c)
+    nums = [float(x) for x in nums]
+    just_equal = True # everytime the "equal" btn is clicked
+
+    if ("Zero" in c):
+        return
+
+    # edge case: if screen has only one number, stop here.
+    if (len(nums) <= 1):
+        return
+
+    operators = re.findall(r'\s(\+|\-|\/|x)\s', c)
+
+    if ((len(nums)-1) != len(operators)):
+        del nums[0]
+
+    rs = calculate(nums, operators)
+
+    if isinstance(rs, str): #when there's some error
         screen.set(rs)
-    ans_val = rs
+    elif isinstance(rs , (int, float, complex)):
+        if rs.is_integer():
+            screen.set(int(rs))
+        else:
+            screen.set(rs)
 
 
 def handle_clicks(btn):
@@ -210,8 +211,24 @@ def handle_clicks(btn):
         ops[btn](current)
 
 
+root = tk.Tk()
+screen = tk.StringVar()
+just_equal = False
+
+
 def main():
+    root.title('calculator')
+    ans_val = tk.StringVar()
+    ans_val.set("ans :")
+    b_h = 3
+    b_w = 3
+    frame = tk.Frame(root)
+    text = tk.Label(frame, anchor=tk.W, padx=29, bg='#0ABAB5', width=20, height=4, textvariable=screen,
+                    font=('helvetica', 15),
+                    fg='black', wraplength=200)
+    text.pack(side=tk.LEFT)
     btns = {}
+    screen.set('0')
 
     # creating buttons
     for x in range (0, 17):
@@ -256,8 +273,7 @@ def main():
     frame.grid(row=4, column=0, columnspan=3)
 
     root_close = CloseWindow(root)
-    root.protocol('WM_DELETE_WINDOW', lambda p=root, c=root_close: show_close_window(c, p))
-
+    root.protocol('WM_DELETE_WINDOW', lambda p=root, c=root_close: c.show_window(p))
     root.resizable(False, False)
     tk.mainloop()
 

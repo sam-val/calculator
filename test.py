@@ -1,10 +1,11 @@
 import tkinter as tk
+from main import CloseWindow as c
 
-l = [1,2,3]
+r = tk.Tk()
+r.title("name")
+closing_win = c(r)
+r.protocol('WM_DELETE_WINDOW', lambda p=r, c=closing_win: c.show_window(p))
 
-print(l[1])
-del l[1]
-print(l[1])
-
+tk.mainloop()
 
 
