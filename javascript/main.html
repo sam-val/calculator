@@ -5,45 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        *, *::after, *::before {
+            box-sizing: border-box;
+        
+        }
         .bg {
-            background: linear-gradient(to left, purple, orange);
+            background: linear-gradient(to left, #f44336, orange);
             height: 100vh;
         }
         .main {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
         }
 
         .cal-grid {
+            
+            display: grid;
+            grid-template: minmax(120px, auto) repeat(5, 100px) / repeat(4, 25%);
 
         }
+
+        .cal-grid > button {
+            background-color: aqua;
+            min-width: 100px;
+            font-size: 2em;
+            cursor: pointer;
+            border: 2px solid white;
+            outline: none;
+            padding: none;
+            
+
+        }
+
+        .cal-grid > button:hover {
+            background-color: navy;
+            border: none;
+            color: white;
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            order: -2;
+            grid-column: 1 / 5;
+            background-color: black;
+            color: white;
+            padding : 20px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .previous-op {
+            font-size: 1em;
+        }
+        .current-op {
+            font-size: 3em;
+        }
+
+        .span-two {
+            grid-column-start: span 2;
+        }
+   
     </style>
     <script defer src="script.js"> </script>
 </head>
 <body>
-    <div class='b'></div>
+    <div class='bg'></div>
     <div class="main">
         <div class="cal-grid">
-            <div class="screen">screen
-                <div class="previous-op"></div>
-                <div class="current-op"></div>
+            <div class="screen">
+                <div class="previous-op">ans=10</div>
+                <div class="current-op">
+                    1233333333333333333333333
+                </div>
             </div>
-           <button>1</button> 
-           <button>2</button> 
-           <button>3</button> 
-           <button>4</button> 
-           <button>5</button> 
-           <button>6</button> 
+            <button>(</button>
+            <button>)</button>
+           <button class="clearbtn span-two">AC</button>
            <button>7</button> 
            <button>8</button> 
            <button>9</button> 
+           <button class="op">x</button>
+           <button>4</button> 
+           <button>5</button> 
+           <button>6</button> 
+           <button class="op">&divide;</button>
+           <button>1</button> 
+           <button>2</button> 
+           <button>3</button> 
+           <button class="op">+</button>
            <button>.</button> 
            <button>0</button>
-           <button>x</button>
-           <button>&divide;</button>
-           <button>%</button>
-           <button>AC</button>
-           <button>+</button>
            <button>=</button>
+           <button class="op">-</button>
         </div>
     </div>
 </body>

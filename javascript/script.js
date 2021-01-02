@@ -1,4 +1,9 @@
-<script>
-    var ans = 0;
-    var prev_expression = "";
-</script>
+const my_grid = document.getElementsByClassName("cal-grid")[0];
+
+
+my_grid.addEventListener('click', (event) => {
+    const nodeName = event.target.nodeName;
+    if (nodeName == "BUTTON") {
+        console.log(event.target.innerHTML);
+    }
+} )
