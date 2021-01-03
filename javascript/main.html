@@ -15,6 +15,7 @@
         }
         .main {
             position: absolute;
+            width: 400px;
             top: 50%;
             left: 50%;
             transform: translateX(-50%) translateY(-50%);
@@ -35,8 +36,6 @@
             border: 2px solid white;
             outline: none;
             padding: none;
-            
-
         }
 
         .cal-grid > button:hover {
@@ -49,9 +48,10 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            justify-content: space-between;
             order: -2;
             grid-column: 1 / 5;
-            background-color: black;
+            background-color: rgba(0,0,0,0.8);
             color: white;
             padding : 20px;
             word-wrap: break-word;
@@ -76,16 +76,15 @@
     <div class='bg'></div>
     <div class="main">
         <div class="cal-grid">
-            <div class="screen">
-                <div class="previous-op">ans=10</div>
-                <div class="current-op">
-                    1233333333333333333333333
+            <div class="screen" id="screen">
+                <div class="previous-op"></div>
+                <div class="current-op">0
                 </div>
             </div>
             <button>(</button>
             <button>)</button>
            <button class="clearbtn span-two">AC</button>
-           <button>7</button> 
+           <button onclick="hello()">7</button> 
            <button>8</button> 
            <button>9</button> 
            <button class="op">x</button>
