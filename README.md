@@ -1,7 +1,8 @@
 ## calculator in more than one language
 
 ### Javascript:
-![javascript_preview](preview/preview.gif)
+
+<img src="preview/preview.gif" width=400> </img>
 
 ### Python: 
 *Using Tkinter*
