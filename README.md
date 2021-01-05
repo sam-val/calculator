@@ -1,4 +1,4 @@
-## calculator in more than one language
+## Calculator app in more than one language
 
 ### Javascript:
 
